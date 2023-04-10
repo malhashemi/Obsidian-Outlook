@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add Email as Task</title>
+  <link rel="stylesheet" href="../../node_modules/easymde/dist/easymde.min.css">
+  <link rel="stylesheet" href="taskpane.css" />
+</head>
+
+<body>
+  <img src="obsidian-logo.png" id="obsidian-logo" alt="Obsidian Logo" />
+  <h1>Add Email as Note in Obsidian</h1>
+  <div>
+    <label for="frontMatter">Front Matter (YAML):</label><br>
+    <textarea id="frontMatter" rows="6" placeholder="YAML Front Matter"></textarea>
+  </div>
+  <br>
+  <div>
+    <label for="emailContent">Email Content (Markdown):</label>
+    <textarea id="emailContent" placeholder="Email Content"></textarea>
+  </div>
+  <div>
+    <label for="attachments">Attachments:</label><br>
+    <ul id="attachments-list"></ul>
+  </div>
+  <div id="message" style="color: red; display: none;"></div>
+  <button id="saveBtn">Save to Obsidian</button>
+  <script src="taskpane.js"></script>
+  <script src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+</body>
+
+</html>
