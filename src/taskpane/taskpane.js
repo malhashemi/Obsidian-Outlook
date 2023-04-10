@@ -11,8 +11,16 @@ const turndownService = new TurndownService();
 
 Office.onReady((info) => {
   if (info.host === Office.HostType.Outlook) {
-    document.getElementById("saveBtn").onclick = saveToObsidian;
     loadEmailContent();
+    document.getElementById("saveBtn").addEventListener("click", () => {
+      const noteTitle = document.getElementById("frontMatter").value.match(/title: "(.*)"/)[1];
+      const sanitizedNoteTitle = sanitizeTitle(noteTitle);
+      const yamlContent = document.getElementById("frontMatter").value + "\n";
+      const markdownContent = emailContentEditor.value();
+
+      saveToObsidian(sanitizedNoteTitle, yamlContent, markdownContent);
+    });
+
   }
 });
 
@@ -58,16 +66,6 @@ async function loadEmailContent() {
   // Fetch the attachments
   const attachments = await getAttachments(item);
 
-  // Add attachments to the UI
-  await renderAttachments(attachments);
-
-  // Generate the attachment links for the markdown note
-  const attachmentLinks = generateAttachmentLinks(attachments);
-
-  // Update the markdown body with the attachment links
-  const markdownBodyWithAttachments = markdownBody + attachmentLinks;
-
-
   // Generate the default front matter
   const frontMatter = {
     title: subject,
@@ -76,8 +74,23 @@ async function loadEmailContent() {
     "sender email": from,
     tags: [],
   };
+
   // Update the UI with the generated content
   document.getElementById("frontMatter").value = dumpToFrontMatter(frontMatter);
+
+  generateEditor(markdownBody, attachments);
+  // Add attachments to the UI
+  await renderAttachments(markdownBody, attachments);
+}
+
+function generateEditor(markdownBody, attachments) {
+  // Generate the attachment links for the markdown note
+  const attachmentLinks = generateAttachmentLinks(attachments);
+
+  // Update the markdown body with the attachment links
+  const markdownBodyWithAttachments = markdownBody + attachmentLinks;
+
+
   emailContentEditor.value(markdownBodyWithAttachments);
   //document.getElementById("emailContent").value = markdownBody;
 }
@@ -95,26 +108,10 @@ function getEmailBody(item) {
   });
 }
 
-function showMessage(message) {
-  const messageElement = document.getElementById("message");
-  messageElement.innerHTML = message;
-  messageElement.style.display = "block";
-}
-
-function hideMessage() {
-  const messageElement = document.getElementById("message");
-  messageElement.style.display = "none";
-}
 
 // Replace this line:
 // alert("Email content saved as a note in Obsidian.");
 // With:
-
-function saveToObsidian() {
-  // TODO: Implement saving the edited front matter and markdown content to Obsidian
-  showMessage("Email content saved as a note in Obsidian.");
-  setTimeout(hideMessage, 3000);
-}
 
 function removeHtmlAndCss(markdown) {
   // // Remove everything before the banner
@@ -148,33 +145,6 @@ function dumpToFrontMatter(data) {
   return frontMatter;
 }
 
-function displayAttachments(attachments) {
-  const attachmentsList = document.getElementById("attachments-list");
-
-  if (attachments.length === 0) {
-    attachmentsList.innerHTML = "No attachments.";
-  } else {
-    attachmentsList.innerHTML = "";
-    for (const attachment of attachments) {
-      const listItem = document.createElement("li");
-
-      const attachmentName = document.createElement("span");
-      attachmentName.textContent = attachment.name;
-      listItem.appendChild(attachmentName);
-
-      const saveButton = document.createElement("button");
-      saveButton.textContent = "Save";
-      saveButton.addEventListener("click", () => {
-        saveToObsidian(attachment);
-      });
-      listItem.appendChild(saveButton);
-
-      attachmentsList.appendChild(listItem);
-    }
-  }
-}
-
-
 function generateAttachmentLinks(attachments) {
   let attachmentLinks = "\n\n## Attachments\n\n";
 
@@ -183,7 +153,7 @@ function generateAttachmentLinks(attachments) {
   }
 
   attachments.forEach((attachment) => {
-    attachment.contentUrl = "Attachments/" + attachment.name;
+    attachment.contentUrl = "Attachments/" + encodeURIComponent(attachment.name);
     attachmentLinks += `- [${attachment.name}](${attachment.contentUrl})\n`;
   });
 
@@ -226,19 +196,21 @@ function getAttachmentContent(item, attachmentId) {
 
 // Function to save an attachment in the Obsidian vault
 async function saveAttachmentToVault(attachment) {
-  const attachmentData = atob(attachment.content); // Convert base64 to binary
-  const attachmentBlob = new Blob([attachmentData], { type: attachment.contentType });
+  // Convert base64 to binary
+  const byteCharacters = atob(attachment.content);
+  const byteNumbers = new Array(byteCharacters.length);
 
-  // Replace this with the path to your Obsidian vault's Attachments folder
-  const vaultPath = '/path/to/your/obsidian/vault/Attachments/';
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
 
-  // const filePath = `${vaultPath}${attachment.name}`;
+  const byteArray = new Uint8Array(byteNumbers);
+  const attachmentBlob = new Blob([byteArray], { type: attachment.contentType });
 
-  // Save the attachment to the specified path
-  // This assumes you have the necessary permissions to write to the filesystem
+  // Save the attachment using the File System Access API
   const fileHandle = await window.showSaveFilePicker({
     suggestedName: attachment.name,
-    startIn: vaultPath,
+    // startIn: 'documents', // Start in the user's Documents folder
   });
 
   const writable = await fileHandle.createWritable();
@@ -246,13 +218,14 @@ async function saveAttachmentToVault(attachment) {
   await writable.close();
 }
 
+
 // Function to remove an attachment from the list
 function removeAttachment(attachments, attachmentId) {
   return attachments.filter((attachment) => attachment.id !== attachmentId);
 }
 
 // Function to render attachments with Save and Delete buttons
-function renderAttachments(attachments) {
+function renderAttachments(markdownBody, attachments) {
   const attachmentList = document.getElementById('attachments-list');
 
   // Clear the attachment list
@@ -272,10 +245,27 @@ function renderAttachments(attachments) {
     deleteButton.innerText = 'Delete';
     deleteButton.onclick = () => {
       attachments = removeAttachment(attachments, attachment.id);
-      renderAttachments(attachments);
+      generateEditor(markdownBody, attachments)
+      renderAttachments(markdownBody, attachments);
     };
     listItem.appendChild(deleteButton);
 
     attachmentList.appendChild(listItem);
   });
+}
+
+function saveToObsidian(noteTitle, yamlContent, markdownContent) {
+  const vaultName = "Moomba PSD Knowledge Vault"; // Replace with your vault's name
+  const encodedTitle = encodeURIComponent(noteTitle);
+  const encodedYamlContent = encodeURIComponent("---\n" + yamlContent + "---\n");
+  const encodedMarkdownContent = encodeURIComponent(markdownContent);
+
+  const obsidianUri = `obsidian://new?vault=${vaultName}&file=${encodedTitle}&content=${encodedYamlContent}${encodedMarkdownContent}`;
+
+  window.open(obsidianUri);
+}
+
+function sanitizeTitle(title) {
+  const invalidCharacters = /[<>:"\/\\|?*]/g;
+  return title.replace(invalidCharacters, '');
 }
