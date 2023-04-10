@@ -60,7 +60,9 @@ async function loadEmailContent() {
   const emailBody = await getEmailBody(item);
 
   // Convert the HTML body to markdown
-  const markdownBody = removeHtmlAndCss(turndownService.turndown(emailBody));
+  const markdownBody = insertHorizontalLine(removeHtmlAndCss(turndownService.turndown(emailBody)));
+  
+  // Add horizontal lines to the markdown body whenever there is a new email
   // const markdownBody = turndownService.turndown(emailBody);
 
   // Fetch the attachments
@@ -268,4 +270,8 @@ function saveToObsidian(noteTitle, yamlContent, markdownContent) {
 function sanitizeTitle(title) {
   const invalidCharacters = /[<>:"\/\\|?*]/g;
   return title.replace(invalidCharacters, '');
+}
+
+function insertHorizontalLine(markdownBody) {
+  return markdownBody.replace(/\*\*From:\*\*/g, '\n---\n\n**From**');
 }
