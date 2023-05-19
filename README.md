@@ -66,6 +66,6 @@ Here's a guide on how to host this add-in using Firebase:
 
     Firebase will provide you with a URL where your add-in is hosted, like `https://your-project-id.web.app`.
 
-7. Update the URLs in your `manifest.xml` file to point to your add-in's new location on Firebase. Replace "https://YourDomain.com/path/to/" with your Firebase URL followed by the path to your files.
+7. Update the URLs in your manifest.xml file to point to your add-in's new location on Firebase. Replace all "https://localhost:3000" occurrences with your Firebase URL followed by the path to your files.
 
 8. Side-load your add-in in Outlook by following the instructions in the [Outlook add-ins documentation](https://docs.microsoft.com/en-us/office/dev/add-ins/outlook/sideload-outlook-add-ins-for-testing).
