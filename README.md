@@ -24,13 +24,13 @@ Here's a guide on how to host this add-in using Firebase:
 1. Clone this repository:
 
     ```sh
-    git clone https://github.com/malhashemi/YourRepoName.git
+    git clone https://github.com/malhashemi/Obsidian-Outlook.git
     ```
 
 2. Navigate to the project directory:
 
     ```sh
-    cd YourRepoName
+    cd Obsidian-Outlook
     ```
 
 3. Login to Firebase:
@@ -69,7 +69,3 @@ Here's a guide on how to host this add-in using Firebase:
 7. Update the URLs in your `manifest.xml` file to point to your add-in's new location on Firebase. Replace "https://YourDomain.com/path/to/" with your Firebase URL followed by the path to your files.
 
 8. Side-load your add-in in Outlook by following the instructions in the [Outlook add-ins documentation](https://docs.microsoft.com/en-us/office/dev/add-ins/outlook/sideload-outlook-add-ins-for-testing).
-
----
-
-Please replace "YourGitHubUsername" and "YourRepoName" with your actual GitHub username and repository name. Make sure that your repository includes the `manifest.xml` file and all other necessary files for your add-in, and adjust the file paths in the README if needed. Also, consider adding a section about how to use the add-in and any additional features or settings.
