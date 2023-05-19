@@ -1,35 +1,75 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+  <head>
+    <title>Add Email as Note</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.cdnfonts.com/css/satoshi?styles=135009,135005,135007,135002,135000" rel="stylesheet" />
+    <link rel="stylesheet" href="../../node_modules/easymde/dist/easymde.min.css" />
+    <link rel="stylesheet" href="../tailwind.min.css" />
+    <link rel="stylesheet" href="taskpane.css" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Add Email as Task</title>
-  <link rel="stylesheet" href="../../node_modules/easymde/dist/easymde.min.css">
-  <link rel="stylesheet" href="taskpane.css" />
-</head>
+  <body class="antialiased bg-body text-body font-body">
+    <div class="">
+      <div class="container mx-auto">
+        <div class="container mx-auto">
+          <img src="obsidian-logo.png" id="obsidian-logo" alt="Obsidian Logo" class="ml-auto mr-auto w-56" />
+        </div>
+        <h1 class="text-gray-900 font-black font-heading text-4xl md:text-5xl xl:text-6xl mb-5 text-center">
+          Add Email As A Note In Obsidian
+        </h1>
 
-<body>
-  <img src="obsidian-logo.png" id="obsidian-logo" alt="Obsidian Logo" />
-  <h1>Add Email as Note in Obsidian</h1>
-  <div>
-    <label for="frontMatter">Front Matter (YAML):</label><br>
-    <textarea id="frontMatter" rows="6" placeholder="YAML Front Matter"></textarea>
-  </div>
-  <br>
-  <div>
-    <label for="emailContent">Email Content (Markdown):</label>
-    <textarea id="emailContent" placeholder="Email Content"></textarea>
-  </div>
-  <div>
-    <label for="attachments">Attachments:</label><br>
-    <ul id="attachments-list"></ul>
-  </div>
-  <div id="message" style="color: red; display: none;"></div>
-  <button id="saveBtn">Save to Obsidian</button>
-  <script src="taskpane.js"></script>
-  <script src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
-</body>
+        <div class="flex flex-wrap -mx-4 -mb-4 md:mb-0">
+          <div class="w-full md:w-1/3 px-4 mb-4 md:mb-0"></div>
+          <div class="w-full md:w-1/3 px-4 mb-4 md:mb-0"></div>
+          <div class="w-full md:w-1/3 px-4 mb-4 md:mb-0 ml-auto">
+            <div class="h-full w-full items-center flex justify-center" id="saveBtn">
+              <a
+                class="inline-block px-8 py-3.5 text-lg text-center text-white font-bold bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:ring-blue-200 rounded-full"
+                href="#"
+                >Save to Obsidian
+              </a>
+            </div>
+          </div>
+        </div>
 
+        <div class="mb-4">
+          <label class="block mb-2 text-sm text-gray-500 font-bold" for="contactLightInput2-5"
+            >Front Matter (YAML):</label
+          >
+          <textarea
+            class="appearance-none px-6 py-5 w-full text-lg text-gray-500 font-bold bg-gray-100 placeholder-gray-500 outline-none focus:ring-4 focus:ring-blue-200 rounded-3xl"
+            id="frontMatter"
+            type="text"
+            rows="8"
+            placeholder="YAML Front Matter"
+          ></textarea>
+        </div>
+        <div class="mb-4">
+          <label class="block mb-2 text-sm text-gray-500 font-bold" for="emailContent">Email Content (Markdown):</label>
+          <textarea
+            class="appearance-none px-6 py-5 w-full text-lg text-gray-500 font-bold bg-gray-100 placeholder-gray-500 outline-none focus:ring-4 focus:ring-blue-200 rounded-3xl"
+            id="emailContent"
+            type="text"
+            rows="8"
+            placeholder="Email Content"
+          ></textarea>
+        </div>
+        <div class="container mx-auto">
+          <label class="block mb-2 text-sm text-gray-500 font-bold" for="attachments">Attachments:</label>
+          <table class="table-auto w-full text-sm text-gray-500 font-bold">
+            <tbody id="attachments-list">
+              <!-- The JavaScript function will populate this area -->
+            </tbody>
+          </table>
+        </div>
+
+        <div class="container mx-auto"></div>
+      </div>
+    </div>
+    <script src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+    <script src="taskpane.js"></script>
+  </body>
 </html>

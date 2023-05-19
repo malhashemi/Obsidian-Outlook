@@ -6,7 +6,7 @@
            xsi:type="MailApp">
     <Id>89e27847-9fd2-4754-a88b-1fe6f9af1320</Id>
     <Version>1.0.0.0</Version>
-    <ProviderName>Contoso</ProviderName>
+    <ProviderName>Obsidian</ProviderName>
     <DefaultLocale>en-US</DefaultLocale>
     <DisplayName DefaultValue="Obsidian Outlook" />
     <Description DefaultValue="A template to get started." />
@@ -76,43 +76,25 @@
                                     </Action>
                                 </Control>
                                 <Control xsi:type="Button"
-                                         id="msgReadOpenPaneButton">
-                                    <Label resid="TaskpaneButton.Label" />
+                                         id="SettingsButton">
+                                    <Label resid="Settings.Label" />
                                     <Supertip>
-                                        <Title resid="TaskpaneButton.Label" />
-                                        <Description resid="TaskpaneButton.Tooltip" />
-                                    </Supertip>
+                                        <Title resid="Settings.Label" />
+                                        <Description resid="Settings.Tooltip" />
+                                    </Supertip>    
                                     <Icon>
                                         <bt:Image size="16"
-                                                  resid="Icon.16x16" />
+                                                  resid="Settings.Icon.16" />
                                         <bt:Image size="32"
-                                                  resid="Icon.32x32" />
+                                                  resid="Settings.Icon.32" />
                                         <bt:Image size="80"
-                                                  resid="Icon.80x80" />
+                                                  resid="Settings.Icon.80" />
                                     </Icon>
                                     <Action xsi:type="ShowTaskpane">
-                                        <SourceLocation resid="Taskpane.Url" />
+                                        <SourceLocation resid="Settings.Url" />
                                     </Action>
                                 </Control>
-                                <Control xsi:type="Button"
-                                         id="ActionButton">
-                                    <Label resid="ActionButton.Label" />
-                                    <Supertip>
-                                        <Title resid="ActionButton.Label" />
-                                        <Description resid="ActionButton.Tooltip" />
-                                    </Supertip>
-                                    <Icon>
-                                        <bt:Image size="16"
-                                                  resid="Icon.16x16" />
-                                        <bt:Image size="32"
-                                                  resid="Icon.32x32" />
-                                        <bt:Image size="80"
-                                                  resid="Icon.80x80" />
-                                    </Icon>
-                                    <Action xsi:type="ExecuteFunction">
-                                        <FunctionName>action</FunctionName>
-                                    </Action>
-                                </Control>
+
                             </Group>
                         </OfficeTab>
                     </ExtensionPoint>
@@ -121,6 +103,13 @@
         </Hosts>
         <Resources>
             <bt:Images>
+                <bt:Image id="Settings.Icon.16"
+                          DefaultValue="https://localhost:3000/assets/settings-icon16.png" />
+                <bt:Image id="Settings.Icon.32"
+                          DefaultValue="https://localhost:3000/assets/settings-icon32.png" />
+                <bt:Image id="Settings.Icon.80"
+                          DefaultValue="https://localhost:3000/assets/settings-icon80.png" />
+
                 <bt:Image id="AddEmailAsObsidianNote.Icon.16"
                           DefaultValue="https://localhost:3000/assets/icon16.png" />
                 <bt:Image id="AddEmailAsObsidianNote.Icon.32"
@@ -135,6 +124,8 @@
                           DefaultValue="https://localhost:3000/assets/icon-80.png" />
             </bt:Images>
             <bt:Urls>
+                <bt:Url id="Settings.Url"
+                        DefaultValue="https://localhost:3000/settings.html" />
                 <bt:Url id="Commands.Url"
                         DefaultValue="https://localhost:3000/commands.html" />
                 <bt:Url id="Taskpane.Url"
@@ -144,17 +135,22 @@
                 <bt:String id="AddEmailAsObsidianNote.Label"
                            DefaultValue="Add Email as Obsidian Note" />
                 <bt:String id="GroupLabel"
-                           DefaultValue="Contoso Add-in" />
+                           DefaultValue="Obsidian Add-in" />
                 <bt:String id="TaskpaneButton.Label"
                            DefaultValue="Show Taskpane" />
                 <bt:String id="ActionButton.Label"
                            DefaultValue="Perform an action" />
+                <bt:String id="Settings.Label"
+                            DefaultValue="Settings" />
             </bt:ShortStrings>
             <bt:LongStrings>
                 <bt:String id="Taskpane.Description"
                            DefaultValue="This add-in allows you to save an email as a note in your Obsidian vault, complete with front matter and attachments." />
                 <bt:String id="AddEmailAsObsidianNote.Tooltip"
                            DefaultValue="This add-in allows you to save an email as a note in your Obsidian vault, complete with front matter and attachments." />
+                <bt:String id="Settings.Tooltip"
+                           DefaultValue="Opens a pane displaying all available properties." />
+                           
                 <bt:String id="TaskpaneButton.Tooltip"
                            DefaultValue="Opens a pane displaying all available properties." />
                 <bt:String id="ActionButton.Tooltip"

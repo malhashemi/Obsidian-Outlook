@@ -10,6 +10,7 @@ const Office = window.Office;
 const turndownService = new TurndownService();
 
 Office.onReady((info) => {
+  loadSettings();
   if (info.host === Office.HostType.Outlook) {
     loadEmailContent();
     document.getElementById("saveBtn").addEventListener("click", () => {
@@ -25,14 +26,15 @@ Office.onReady((info) => {
 });
 
 // Initialize the markdown editor
-const emailContentEditor = new EasyMDE({ element: document.getElementById("emailContent") });
+const emailContentEditor = new EasyMDE({maxHeight: "500px", element: document.getElementById("emailContent") });
 
 
 async function loadEmailContent() {
   // Get the selected message in Outlook
   const item = Office.context.mailbox.item;
   console.log(item);
-
+  const settings = Office.context.roamingSettings;
+  const defaultTags = settings.get('defaultTags') || ''; // Replace with your default tags
   // Get the email's subject, sender, and received time
   const subject = item.normalizedSubject;
   console.log(subject);
@@ -60,7 +62,7 @@ async function loadEmailContent() {
   const emailBody = await getEmailBody(item);
 
   // Convert the HTML body to markdown
-  const markdownBody = insertHorizontalLine(removeHtmlAndCss(turndownService.turndown(emailBody)));
+  const markdownBody = sanitizeMarkdown(turndownService.turndown(emailBody));
   
   // Add horizontal lines to the markdown body whenever there is a new email
   // const markdownBody = turndownService.turndown(emailBody);
@@ -74,7 +76,7 @@ async function loadEmailContent() {
     "date created": formattedDate,
     sender: fromName,
     "sender email": from,
-    tags: [],
+    tags: defaultTags.split(",").map((tag) => tag.trim()),
   };
 
   // Update the UI with the generated content
@@ -115,9 +117,11 @@ function getEmailBody(item) {
 // alert("Email content saved as a note in Obsidian.");
 // With:
 
-function removeHtmlAndCss(markdown) {
+function sanitizeMarkdown(markdown) {
   // // Remove everything before the banner
   // markdown = markdown.replace(/[\s\S]*ZjQcmQRYFpfptBannerEnd\s*/, '');
+  const settings = Office.context.roamingSettings;
+  const attachmentFolder = settings.get('attachmentFolder') || 'Attachments'; 
   const bannerStart = 'ZjQcmQRYFpfptBannerStart';
   const bannerEnd = 'ZjQcmQRYFpfptBannerEnd';
 
@@ -136,6 +140,13 @@ function removeHtmlAndCss(markdown) {
   // Remove extra spaces and new lines after the banner
   markdown = markdown.replace(/^\s+/, '');
 
+  // Insert a horizontal line between emails
+  markdown = markdown.replace(/\*\*From:\*\*/g, '\n---\n\n**From**');
+
+  markdown = markdown.replace(/!\[\]\(cid:(image\d+\.(png|jpg|jpeg|gif|bmp|tiff))@[\w\d.]+\)/g, (match, imageName) => {
+    return `![${imageName}](${attachmentFolder}/${imageName})`;
+  });
+
   return markdown;
 }
 
@@ -148,6 +159,8 @@ function dumpToFrontMatter(data) {
 }
 
 function generateAttachmentLinks(attachments) {
+  const settings = Office.context.roamingSettings;
+  const attachmentFolder = settings.get('attachmentFolder') || 'Attachments'; // Replace with your default folder name
   let attachmentLinks = "\n\n## Attachments\n\n";
 
   if (attachments.length === 0) {
@@ -155,7 +168,7 @@ function generateAttachmentLinks(attachments) {
   }
 
   attachments.forEach((attachment) => {
-    attachment.contentUrl = "Attachments/" + encodeURIComponent(attachment.name);
+    attachment.contentUrl = attachmentFolder + "/" + encodeURIComponent(attachment.name);
     attachmentLinks += `- [${attachment.name}](${attachment.contentUrl})\n`;
   });
 
@@ -228,37 +241,58 @@ function removeAttachment(attachments, attachmentId) {
 
 // Function to render attachments with Save and Delete buttons
 function renderAttachments(markdownBody, attachments) {
-  const attachmentList = document.getElementById('attachments-list');
+  const attachmentTableBody = document.getElementById('attachments-list');
 
-  // Clear the attachment list
-  attachmentList.innerHTML = '';
+  // Clear the attachment table body
+  attachmentTableBody.innerHTML = '';
 
   attachments.forEach((attachment) => {
-    const listItem = document.createElement('li');
+    const tableRow = document.createElement('tr');
+
+    // Attachment name
+    const nameCell = document.createElement('td');
+    nameCell.className = 'py-2 text-left px-4 border-t border-l border-b';
     const attachmentName = document.createTextNode(attachment.name);
-    listItem.appendChild(attachmentName);
+    nameCell.appendChild(attachmentName);
+    tableRow.appendChild(nameCell);
 
-    const saveButton = document.createElement('button');
-    saveButton.innerText = 'Save';
-    saveButton.onclick = () => saveAttachmentToVault(attachment);
-    listItem.appendChild(saveButton);
-
+    // Delete button
+    const deleteCell = document.createElement('td');
+    deleteCell.className = 'px-4 py-2 text-center border-t border-b';
     const deleteButton = document.createElement('button');
+    deleteButton.className =
+      'inline-block px-6 py-2 text-lg text-center text-white font-bold bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:ring-blue-200 rounded-full';
     deleteButton.innerText = 'Delete';
     deleteButton.onclick = () => {
       attachments = removeAttachment(attachments, attachment.id);
-      generateEditor(markdownBody, attachments)
+      generateEditor(markdownBody, attachments);
       renderAttachments(markdownBody, attachments);
     };
-    listItem.appendChild(deleteButton);
+    deleteCell.appendChild(deleteButton);
+    tableRow.appendChild(deleteCell);
 
-    attachmentList.appendChild(listItem);
+    // Save button
+    const saveCell = document.createElement('td');
+    saveCell.className = 'px-4 py-2 text-center border-t border-b border-r';
+    const saveButton = document.createElement('button');
+    saveButton.className =
+      'inline-block px-6 py-2 text-lg text-center text-white font-bold bg-blue-500 hover:bg-blue-600 focus:ring-4 focus:ring-blue-200 rounded-full';
+    saveButton.innerText = 'Save';
+    saveButton.onclick = () => saveAttachmentToVault(attachment);
+    saveCell.appendChild(saveButton);
+    tableRow.appendChild(saveCell);
+
+    attachmentTableBody.appendChild(tableRow);
   });
 }
 
+// Function to save the note to Obsidian
 function saveToObsidian(noteTitle, yamlContent, markdownContent) {
-  const vaultName = "Moomba PSD Knowledge Vault"; // Replace with your vault's name
-  const encodedTitle = encodeURIComponent(noteTitle);
+  const settings = Office.context.roamingSettings;
+  const vaultName = settings.get('vaultName') || 'Moomba PSD Knowledge Vault'; // Replace with your vault name
+  const folderName = settings.get('defaultFolder') || 'Inbox'; // Replace with your default folder name
+  const path = folderName ? `${folderName}/${noteTitle}` : noteTitle; // If there is a folder name, add it to the path
+  const encodedTitle = encodeURIComponent(path);
   const encodedYamlContent = encodeURIComponent("---\n" + yamlContent + "---\n");
   const encodedMarkdownContent = encodeURIComponent(markdownContent);
 
@@ -272,6 +306,7 @@ function sanitizeTitle(title) {
   return title.replace(invalidCharacters, '');
 }
 
-function insertHorizontalLine(markdownBody) {
-  return markdownBody.replace(/\*\*From:\*\*/g, '\n---\n\n**From**');
+function loadSettings() {
+  const settings = Office.context.roamingSettings;
+  console.log(settings);
 }
