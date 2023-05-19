@@ -3,6 +3,9 @@
 const devCerts = require("office-addin-dev-certs");
 const CopyWebpackPlugin = require("copy-webpack-plugin");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const path = require('path');
+const { PurgeCSSPlugin } = require('purgecss-webpack-plugin');
+const glob = require('glob-all');
 
 const urlDev = "https://localhost:3000/";
 const urlProd = "https://www.contoso.com/"; // CHANGE THIS TO YOUR PRODUCTION DEPLOYMENT LOCATION
@@ -31,6 +34,10 @@ module.exports = async (env, options) => {
     module: {
       rules: [
         {
+          test: /\.css$/,
+          use: ['style-loader', 'css-loader'],
+        },
+        {
           test: /\.js$/,
           exclude: /node_modules/,
           use: {
@@ -55,6 +62,21 @@ module.exports = async (env, options) => {
       ],
     },
     plugins: [
+      new PurgeCSSPlugin({
+        paths: glob.sync([
+          path.join(__dirname, './src/**/*.html'),
+          path.join(__dirname, './src/**/*.js'),
+          path.join(__dirname, './src/**/*.jsx'),
+          path.join(__dirname, './src/**/*.tsx'),
+          // Add more paths to include other files
+        ]),
+        safelist: {
+          // Include any classes that should not be removed by PurgeCSS
+          standard: [/^bg-/, /^text-/, /^border-/, /^hover:/, /^focus:/],
+          deep: [/^.*tw-.*/],
+        },
+      }),
+
       new HtmlWebpackPlugin({
         filename: "taskpane.html",
         template: "./src/taskpane/taskpane.html",
