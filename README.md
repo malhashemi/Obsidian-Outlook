@@ -33,13 +33,19 @@ Here's a guide on how to host this add-in using Firebase:
     cd Obsidian-Outlook
     ```
 
-3. Login to Firebase:
+3. Install npm
+
+    ```sh
+    npm install
+    ```
+
+4. Login to Firebase:
 
     ```sh
     firebase login
     ```
 
-4. Initialize Firebase in your project:
+5. Initialize Firebase in your project:
 
     ```sh
     firebase init
@@ -50,7 +56,7 @@ Here's a guide on how to host this add-in using Firebase:
     - Specify "dist" as the public directory
     - Choose "Yes" to configure the project as a single-page app
 
-5. Build the project:
+6. Build the project:
 
     ```sh
     npm run build
@@ -58,7 +64,7 @@ Here's a guide on how to host this add-in using Firebase:
 
     This will create a `dist` directory with the built project files.
 
-6. Deploy the project to Firebase:
+7. Deploy the project to Firebase:
 
     ```sh
     firebase deploy
@@ -66,6 +72,6 @@ Here's a guide on how to host this add-in using Firebase:
 
     Firebase will provide you with a URL where your add-in is hosted, like `https://your-project-id.web.app`.
 
-7. Update the URLs in your `manifest.xml` file to point to your add-in's new location on Firebase. Replace "https://localhost:3000" occurrences with your Firebase URL followed by the path to your files.
+8. Update the URLs in your `manifest.xml` file to point to your add-in's new location on Firebase. Replace "https://localhost:3000" occurrences with your Firebase URL followed by the path to your files.
 
-8. Side-load your add-in in Outlook by following the instructions in the [Outlook add-ins documentation](https://docs.microsoft.com/en-us/office/dev/add-ins/outlook/sideload-outlook-add-ins-for-testing).
+9. Side-load your add-in in Outlook by following the instructions in the [Outlook add-ins documentation](https://docs.microsoft.com/en-us/office/dev/add-ins/outlook/sideload-outlook-add-ins-for-testing).
